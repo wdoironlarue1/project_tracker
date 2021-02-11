@@ -1,0 +1,30 @@
+.trackerCol {
+  background: #f4f5f7;
+  margin: 2px;
+  border-radius: 4px;
+}
+
+.btn-primary:focus {
+  outline: none;
+  box-shadow: none;
+  background-color: #007bff;
+}
+
+.btn-danger:focus {
+  outline: none;
+  box-shadow: none;
+  background-color: #dc3545;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+}
+
+.btn-primary:hover {
+  background-color: #0069d9;
+}
+
+.card {
+  margin: 2px 0px 2px 0px;
+}
+
