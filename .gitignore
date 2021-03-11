@@ -232,3 +232,9 @@ _Pvt_Extensions
 .fake/
 
 *.db*
+
+.vscode
+
+appsettings.json
+
+Credentials.cs

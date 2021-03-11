@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjectTracker.Data;
 
 namespace ProjectTracker.Migrations
 {
     [DbContext(typeof(ProjectTrackerContext))]
-    partial class ProjectTrackerContextModelSnapshot : ModelSnapshot
+    [Migration("20210304154045_CreatorToIssue")]
+    partial class CreatorToIssue
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -72,6 +74,8 @@ namespace ProjectTracker.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatorId");
+
                     b.ToTable("Project");
                 });
 
@@ -104,21 +108,6 @@ namespace ProjectTracker.Migrations
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("ProjectUser", b =>
-                {
-                    b.Property<int>("ProjectsId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("UsersId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("ProjectsId", "UsersId");
-
-                    b.HasIndex("UsersId");
-
-                    b.ToTable("ProjectUser");
-                });
-
             modelBuilder.Entity("ProjectTracker.Models.Issue", b =>
                 {
                     b.HasOne("ProjectTracker.Models.User", "Creator")
@@ -136,19 +125,15 @@ namespace ProjectTracker.Migrations
                     b.Navigation("Creator");
                 });
 
-            modelBuilder.Entity("ProjectUser", b =>
+            modelBuilder.Entity("ProjectTracker.Models.Project", b =>
                 {
-                    b.HasOne("ProjectTracker.Models.Project", null)
+                    b.HasOne("ProjectTracker.Models.User", "Creator")
                         .WithMany()
-                        .HasForeignKey("ProjectsId")
+                        .HasForeignKey("CreatorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ProjectTracker.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("UsersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Creator");
                 });
 
             modelBuilder.Entity("ProjectTracker.Models.Project", b =>

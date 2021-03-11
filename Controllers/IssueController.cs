@@ -10,29 +10,37 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ProjectTracker.Controllers
 {
-    public class ProjectTrackerController : Controller
+    public class IssueController : BaseController
     {
-        private readonly ProjectTrackerContext _context;
-
-        public ProjectTrackerController(ProjectTrackerContext context)
+        public IssueController(ProjectTrackerContext context) : base(context)
         {
-            _context = context;
         }
 
-        public string Issues()
+        public string Issues(int userId, int projectId)
         {
+            // need to add a check that the user has permissions to view this project
             var issues = from i in _context.Issue
+                         where i.ProjectId == projectId
                          select i;
+
             return JsonSerializer.Serialize(issues.ToList());
         }
 
-        public int CreateNewIssue([Bind("Id, IssueType, Summary, Description")] Issue issue)
+        public int Create([Bind("Id, IssueType, Summary, Description")] Issue issue, string createdBy, int projectId)
         {
+            User user = GetUser(createdBy);
+            Project project = GetProject(projectId);
+            // add to the join table
+            project.Users.Add(user);
+            issue.ProjectId = projectId;
             issue.IssueStage = Constants.ISSUE_STAGE_TO_DO;
             issue.DateCreated = DateTime.Now.Date;
+            issue.CreatorId = user.Id;
+
             if (ModelState.IsValid)
             {
                 _context.Add(issue);
+                _context.Add(project);
                 _context.SaveChanges();
             }
             return issue.Id;

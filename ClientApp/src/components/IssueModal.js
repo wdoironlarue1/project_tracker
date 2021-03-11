@@ -44,10 +44,6 @@ export default class IssueModal extends Component {
     showConfirmDeleteModal: false,
   };
 
-  onSelectIssueType = (dropdownKey) => {
-    this.setState({ issueType: dropdownKey });
-  };
-
   onChangeFormItem = ({ target: { value } }, stateKey) => {
     this.setState({ [stateKey]: value });
   };
@@ -114,7 +110,7 @@ export default class IssueModal extends Component {
 
   render() {
     return (
-      <Modal show={this.props.show} onHide={this.onCloseModal}>
+      <Modal show={this.props.show} onHide={this.onCloseModal} size="lg">
         <Container>
           <Form
             noValidate
@@ -139,23 +135,25 @@ export default class IssueModal extends Component {
                   <option value={constants.ISSUE_TYPE_BUG}>Bug</option>
                 </Form.Control>
               </Form.Group>
-              {this.props.modalType === constants.MODAL_TYPE_EDIT && (
-                <Form.Group as={Col} controlId="issueType">
-                  <Form.Label>Issue Stage</Form.Label>
-                  <Form.Control
-                    as="select"
-                    onChange={(e) => this.onChangeFormItem(e, "issueStage")}
-                    style={{ backgroundImage: "none" }}
-                    value={this.state.issueStage}
-                  >
-                    <option value={constants.ISSUE_STAGE_TO_DO}>To Do</option>
-                    <option value={constants.ISSUE_STAGE_IN_PROGRESS}>
-                      In Progress
-                    </option>
-                    <option value={constants.ISSUE_STAGE_DONE}>Done</option>
-                  </Form.Control>
-                </Form.Group>
-              )}
+              <Form.Group as={Col} controlId="issueType">
+                {this.props.modalType === constants.MODAL_TYPE_EDIT && (
+                  <div>
+                    <Form.Label>Issue Stage</Form.Label>
+                    <Form.Control
+                      as="select"
+                      onChange={(e) => this.onChangeFormItem(e, "issueStage")}
+                      style={{ backgroundImage: "none" }}
+                      value={this.state.issueStage}
+                    >
+                      <option value={constants.ISSUE_STAGE_TO_DO}>To Do</option>
+                      <option value={constants.ISSUE_STAGE_IN_PROGRESS}>
+                        In Progress
+                      </option>
+                      <option value={constants.ISSUE_STAGE_DONE}>Done</option>
+                    </Form.Control>
+                  </div>
+                )}
+              </Form.Group>
             </Form.Row>
             <Form.Group controlId="summary">
               <Form.Label>Summary</Form.Label>
@@ -175,8 +173,8 @@ export default class IssueModal extends Component {
               <Form.Control
                 as="textarea"
                 onChange={(e) => this.onChangeFormItem(e, "description")}
-                style={{ backgroundImage: "none" }}
-                value={this.state.description}
+                style={{ backgroundImage: "none", height: "150px" }}
+                value={this.state.description ?? ""}
               />
             </Form.Group>
             <Form.Row>
