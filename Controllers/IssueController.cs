@@ -29,18 +29,16 @@ namespace ProjectTracker.Controllers
         public int Create([Bind("Id, IssueType, Summary, Description")] Issue issue, string createdBy, int projectId)
         {
             User user = GetUser(createdBy);
-            Project project = GetProject(projectId);
             // add to the join table
-            project.Users.Add(user);
             issue.ProjectId = projectId;
             issue.IssueStage = Constants.ISSUE_STAGE_TO_DO;
             issue.DateCreated = DateTime.Now.Date;
             issue.CreatorId = user.Id;
 
+
             if (ModelState.IsValid)
             {
                 _context.Add(issue);
-                _context.Add(project);
                 _context.SaveChanges();
             }
             return issue.Id;

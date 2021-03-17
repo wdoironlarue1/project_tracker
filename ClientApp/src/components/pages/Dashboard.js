@@ -17,7 +17,6 @@ class Dashboard extends Component {
     fetch("Project/Projects?userId=" + user.sub)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data)
         data = data.map((project) => {
           return {
             id: project.Id,
@@ -51,7 +50,6 @@ class Dashboard extends Component {
     fetch(url)
       .then((response) => response.text())
       .then((data) => {
-        console.log(data);
         this.setState((prevState) => ({
           projects: [
             ...prevState.projects,

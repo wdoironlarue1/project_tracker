@@ -5,17 +5,7 @@ import AsyncDropdown from "../AsyncDropdown";
 
 class HomePage extends Component {
   render() {
-    return (
-      <Container>
-        home page
-        <div>
-          <AsyncDropdown returnNumber={10} />
-          
-        </div>
-        <p>some stuff under</p>
-        wtf is goin on
-      </Container>
-    );
+    return <Container>home page</Container>;
   }
 }
 

@@ -7,7 +7,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { NavLink } from "react-router-dom";
 
 const NavBar = () => {
-  const { isAuthenticated } = useAuth0();
+  const { isAuthenticated, user } = useAuth0();
 
   return (
     <Navbar bg="light">
@@ -23,7 +23,14 @@ const NavBar = () => {
             Dashboard
           </NavLink>
         </Nav>
-        {isAuthenticated ? <LogoutButton /> : <LoginButton />}
+
+        {isAuthenticated ? (
+          <div>
+            {user.nickname} <LogoutButton />
+          </div>
+        ) : (
+          <LoginButton />
+        )}
       </Navbar.Collapse>
     </Navbar>
   );

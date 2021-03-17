@@ -6,8 +6,7 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-
+using Microsoft.AspNetCore.Server.Kestrel;
 
 namespace ProjectTracker
 {
@@ -27,17 +26,6 @@ namespace ProjectTracker
 
             services.AddDbContext<ProjectTrackerContext>(options =>
             options.UseSqlite(Configuration.GetConnectionString("ProjectTrackerContext")));
-
-            // 1. Add Authentication Services
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
-            {
-                options.Authority = "https://dev-yx2h2inc.us.auth0.com/";
-                options.Audience = "https://project.tracker";
-            });
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -63,9 +51,6 @@ namespace ProjectTracker
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
-
-            // 2. Enable authentication middleware
-            app.UseAuthentication();
 
             app.UseRouting();
 

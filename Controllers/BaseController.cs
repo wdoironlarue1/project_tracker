@@ -19,12 +19,19 @@ namespace ProjectTracker.Controllers
             _context = context;
         }
 
+
+        // maybe should move these out of the controller and into a model or something
         protected User GetUser(string auth0Key)
         {
             return _context.User.FirstOrDefault(u => u.Auth0Key == auth0Key);
         }
 
-        protected Project GetProject(int projectId) {
+        protected User GetUser(int userId) {
+            return _context.User.FirstOrDefault(u => u.Id == userId);
+        }
+
+        protected Project GetProject(int projectId)
+        {
             return _context.Project.Include(p => p.Users).FirstOrDefault(p => p.Id == projectId);
         }
     }

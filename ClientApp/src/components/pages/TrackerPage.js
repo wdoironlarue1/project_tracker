@@ -7,40 +7,42 @@ import * as constants from "../../constants";
 import { withAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 import AddPeopleModal from "../AddPeopleModal";
 
-const PROJECT_ID = parseInt(
-  new URL(window.location.href).searchParams.get("projectId")
-);
 
 class TrackerPage extends Component {
   state = {
     isIssueModalOpen: false,
     isPeopleModalOpen: false,
     issues: [],
-    users: []
+    users: [],
+    creatorId: 0,
+    projectId: 0
   };
 
   componentDidMount = () => {
     const { user } = this.props.auth0;
-    // this should hit the project controller and return a project 
-    fetch("Project/Project?userId=" + user.sub + "&projectId=" + PROJECT_ID)
+    fetch(
+      "Project/Project?userId=" +
+        user.sub +
+        "&projectId=" +
+        parseInt(new URL(window.location.href).searchParams.get("projectId"))
+    )
       .then((response) => response.json())
       .then((project) => {
-        console.log(project)
         let issues = project.Issues.map((issue) => ({
-            id: issue.Id,
-            issueType: issue.IssueType,
-            issueStage: issue.IssueStage,
-            summary: issue.Summary,
-            description: issue.Description,
-            createdBy: issue.CreatedBy,
-            dateCreated: issue.DateCreated,
+          id: issue.Id,
+          issueType: issue.IssueType,
+          issueStage: issue.IssueStage,
+          summary: issue.Summary,
+          description: issue.Description,
+          createdBy: issue.CreatedBy,
+          dateCreated: issue.DateCreated,
         }));
         let users = project.Users.map((user) => ({
           id: user.Id,
           email: user.Email,
-          nickName: user.NickName
-        }))
-        this.setState({ issues, users });
+          nickName: user.NickName,
+        }));
+        this.setState({ issues, users, creatorId: project.CreatorId, projectId: project.Id });
       })
       .catch((e) => console.log(e));
   };
@@ -52,7 +54,7 @@ class TrackerPage extends Component {
       issueType,
       summary,
       createdBy: user.sub,
-      projectId: PROJECT_ID
+      projectId: this.state.projectId,
     }).toString();
     url += description ? "&description=" + description : "";
 
@@ -137,11 +139,23 @@ class TrackerPage extends Component {
   };
 
   changePeopleModalState = (bool) => {
-    this.setState({isPeopleModalOpen: bool})
-  }
+    this.setState({ isPeopleModalOpen: bool });
+  };
 
   changeIssueModalState = (bool) => {
-    this.setState({isIssueModalOpen: bool})
+    this.setState({ isIssueModalOpen: bool });
+  };
+
+  removeUser = (userId) => {
+    this.setState((prevState) => {
+      let tempList = [...prevState.users];
+      for (let i = 0; i < tempList.length; i++) {
+        if (tempList[i].id === userId) {
+          tempList.splice(i, 1);
+        }
+      }
+      return { users: tempList };
+    });
   }
 
   render() {
@@ -168,10 +182,15 @@ class TrackerPage extends Component {
     return (
       <div>
         <Container>
-          <Button variant="primary" onClick={() => this.changeIssueModalState(true)}>
+          <Button
+            variant="primary"
+            onClick={() => this.changeIssueModalState(true)}
+          >
             create
           </Button>{" "}
-          <Button onClick={() => this.changePeopleModalState(true)}>add people</Button>
+          <Button onClick={() => this.changePeopleModalState(true)}>
+            add people
+          </Button>
         </Container>
         <Tracker
           onMoveTask={this.onMoveIssue}
@@ -190,7 +209,10 @@ class TrackerPage extends Component {
         <AddPeopleModal
           show={this.state.isPeopleModalOpen}
           currentUsers={this.state.users}
+          removeUser={this.removeUser}
           closeModal={() => this.changePeopleModalState(false)}
+          creatorId={this.state.creatorId}
+          projectId={this.state.projectId}
         />
       </div>
     );

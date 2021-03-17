@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using ProjectTracker.Models;
 using System;
 using System.Linq;
-// using System.Text.Json;
-// using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using Newtonsoft.Json;
@@ -23,24 +21,26 @@ namespace ProjectTracker.Controllers
         public string Projects(string userId)
         {
             //add check to grab projects that the user was added to
-            var projects = from p in _context.Project.Include(p => p.Users)
-                           join u in _context.User
-                               on p.CreatorId equals u.Id
+            // select projects from project join user on userid == authkey where p.creatorid == u.id or 
+            var projects = from u in _context.User
+                           .Include(u => u.Projects)
+                           .ThenInclude(p => p.Users)
                            where u.Auth0Key == userId
-                           select p;
-
-            string test = JsonConvert.SerializeObject(projects.ToList(), Formatting.Indented,
+                           select (u.Projects);
+            var thing = projects.ToList();
+            string test = projects.ToQueryString();
+            string result = JsonConvert.SerializeObject(projects.ToList().First(), Formatting.Indented,
             new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }
             );
-            return test;
+            return result;
         }
 
-        public string Project(int userId, int projectId)
+        public string Project(string userId, int projectId)
         {
             // need to add a check that the user has permissions to view this project
             var project = _context.Project
                 .Include(p => p.Users)
-                .Include(p => p.Issues) 
+                .Include(p => p.Issues)
                 .FirstOrDefault(p => p.Id == projectId);
             return JsonConvert.SerializeObject(project, Formatting.Indented,
             new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }

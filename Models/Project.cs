@@ -15,6 +15,6 @@ namespace ProjectTracker.Models
         public DateTime DateCreated {get; set;} 
 
         public List<Issue> Issues {get; set;}
-        public ICollection<User> Users {get; set;}
+        public List<User> Users {get; set;}
     }
 }
