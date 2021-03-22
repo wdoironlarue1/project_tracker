@@ -14,9 +14,8 @@ const ProjectTable = ({ projects }) => {
 
   return (
     <div>
-      Projects
       <div className="project-table-wrapper">
-        <Table striped bordered hover>
+        <Table hover>
           <thead>
             <tr>
               <th>Name</th>

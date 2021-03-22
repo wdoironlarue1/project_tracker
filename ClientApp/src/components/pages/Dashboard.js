@@ -15,18 +15,23 @@ class Dashboard extends Component {
   componentDidMount = () => {
     const { user } = this.props.auth0;
     fetch("Project/Projects?userId=" + user.sub)
-      .then((response) => response.json())
-      .then((data) => {
-        data = data.map((project) => {
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Http error " + response.status);
+        }
+        return response.json();
+      })
+      .then((projects) => {
+        projects = projects[0].map((project) => {
           return {
-            id: project.Id,
-            name: project.Name,
-            type: constants.PROJECT_TYPE_MAP[project.Type],
-            createdBy: project.Users.find(user => user.Id === project.CreatorId).NickName,
-            dateCreated: project.DateCreated,
+            ...project,
+            type: constants.PROJECT_TYPE_MAP[project.type],
+            createdBy: project.users.find(
+              (user) => user.id === project.creatorId
+            ).nickName,
           };
         });
-        this.setState({ projects: data });
+        this.setState({ projects });
       })
       .catch((e) => console.log(e));
   };
@@ -45,16 +50,21 @@ class Dashboard extends Component {
     url += new URLSearchParams({
       name,
       type,
-      CreatorId: user.sub,
+      creatorId: user.sub,
     }).toString();
     fetch(url)
-      .then((response) => response.text())
-      .then((data) => {
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Http error " + response.status);
+        }
+        return response.json();
+      })
+      .then((project) => {
         this.setState((prevState) => ({
           projects: [
             ...prevState.projects,
             {
-              name,
+              ...project,
               type: constants.PROJECT_TYPE_MAP[type],
               createdBy: user.nickname,
             },
@@ -66,6 +76,7 @@ class Dashboard extends Component {
   render() {
     return (
       <Container>
+        <h2>Projects</h2>
         <div>
           <Button variant="primary" onClick={this.onNewProjectButtonClick}>
             new project

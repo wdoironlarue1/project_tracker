@@ -26,7 +26,7 @@ export default class AddPeopleModal extends Component {
         if (!response.ok) {
           throw new Error("Http error " + response.status);
         }
-        response.json();
+        return response.json();
       })
       .then((data) => {
         this.props.removeUser(userId);
@@ -70,7 +70,7 @@ export default class AddPeopleModal extends Component {
         if (!response.ok) {
           throw new Error("Http error " + response.status);
         }
-        response.json();
+        return response.json();
       })
       .then((data) => {
         this.props.closeModal();

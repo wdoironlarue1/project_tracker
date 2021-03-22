@@ -11,7 +11,7 @@ const NavBar = () => {
 
   return (
     <Navbar bg="light">
-      <Navbar.Brand href="#home">Project Tracker</Navbar.Brand>
+      <Navbar.Brand href="/">Project Tracker</Navbar.Brand>
       <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="mr-auto">
           <NavLink to="/" exact className="nav-link">

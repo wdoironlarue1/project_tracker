@@ -19,7 +19,7 @@ namespace ProjectTracker.Controllers
         {
         }
 
-        public int Create([Bind("Id, Auth0Key, FirstName, LastName, NickName, Email")] User user)
+        public IActionResult Create([Bind("Id, Auth0Key, FirstName, LastName, NickName, Email")] User user)
         {
             if (!UserExists(user.Auth0Key))
             {
@@ -28,21 +28,21 @@ namespace ProjectTracker.Controllers
                     _context.Add(user);
                     _context.SaveChanges();
                 }
-                return user.Id;
+                return Ok();
             }
-            return 1;
+            return Ok();
         }
 
-        public string UsersLike(string searchString, int returnNumber)
+        public IActionResult UsersLike(string searchString, int returnNumber)
         {
             var users = from u in _context.User
                         where EF.Functions.Like(u.NickName, searchString + "%")
                         select u;
             users.Take(returnNumber);
-            return JsonSerializer.Serialize(users.ToList());
+            return Ok(users.ToList());
         }
 
-        public string Add(int projectId, string userIdsString)
+        public IActionResult Add(int projectId, string userIdsString)
         {
             int[] userIds = Array.ConvertAll(userIdsString.Split(','), int.Parse);
             List<User> users = new List<User>();
@@ -56,17 +56,17 @@ namespace ProjectTracker.Controllers
                 project.Users = project.Users.Union(users).ToList();
                 _context.SaveChanges();
             }
-            return "";
+            return Ok();
         }
 
-        public string Remove(int projectId, int userId) {
+        public IActionResult Remove(int projectId, int userId) {
             Project project = GetProject(projectId);
             User user = project.Users.SingleOrDefault(user => user.Id == userId);
             if(user != null) {
                 project.Users.Remove(user);
                 _context.SaveChanges();
             }
-            return "";
+            return Ok();
         }
 
         private bool UserExists(string auth0Key)

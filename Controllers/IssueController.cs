@@ -16,17 +16,16 @@ namespace ProjectTracker.Controllers
         {
         }
 
-        public string Issues(int userId, int projectId)
+        public IActionResult Issues(int userId, int projectId)
         {
             // need to add a check that the user has permissions to view this project
             var issues = from i in _context.Issue
                          where i.ProjectId == projectId
                          select i;
-
-            return JsonSerializer.Serialize(issues.ToList());
+            return Ok(issues.ToList());
         }
 
-        public int Create([Bind("Id, IssueType, Summary, Description")] Issue issue, string createdBy, int projectId)
+        public IActionResult Create([Bind("Id, IssueType, Summary, Description")] Issue issue, string createdBy, int projectId)
         {
             User user = GetUser(createdBy);
             // add to the join table
@@ -41,19 +40,19 @@ namespace ProjectTracker.Controllers
                 _context.Add(issue);
                 _context.SaveChanges();
             }
-            return issue.Id;
+            return Ok(issue.Id);
         }
 
 
-        public string Delete(int Id)
+        public IActionResult Delete(int Id)
         {
             var issue = _context.Issue.Find(Id);
             _context.Issue.Remove(issue);
             _context.SaveChanges();
-            return "{\"message\": \"delete\"}";
+            return Ok();
         }
 
-        public string Edit(int id, string summary, string description, int issueStage, int issueType)
+        public IActionResult Edit(int id, string summary, string description, int issueStage, int issueType)
         {
             var entity = _context.Issue.FirstOrDefault(issue => issue.Id == id);
             if (entity != null)
@@ -66,10 +65,10 @@ namespace ProjectTracker.Controllers
                 _context.SaveChanges();
             }
 
-            return "edit issue";
+            return Ok();
         }
 
-        public string Move(int id, int issueStage)
+        public IActionResult Move(int id, int issueStage)
         {
             var entity = _context.Issue.FirstOrDefault(issue => issue.Id == id);
             if (entity != null)
@@ -78,7 +77,7 @@ namespace ProjectTracker.Controllers
 
                 _context.SaveChanges();
             }
-            return "move issue";
+            return Ok();
         }
 
         private bool IssueExists(int id)

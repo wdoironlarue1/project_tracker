@@ -7,7 +7,6 @@ import * as constants from "../../constants";
 import { withAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 import AddPeopleModal from "../AddPeopleModal";
 
-
 class TrackerPage extends Component {
   state = {
     isIssueModalOpen: false,
@@ -15,7 +14,8 @@ class TrackerPage extends Component {
     issues: [],
     users: [],
     creatorId: 0,
-    projectId: 0
+    projectId: 0,
+    projectName: "",
   };
 
   componentDidMount = () => {
@@ -26,23 +26,20 @@ class TrackerPage extends Component {
         "&projectId=" +
         parseInt(new URL(window.location.href).searchParams.get("projectId"))
     )
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Http error " + response.status);
+        }
+        return response.json();
+      })
       .then((project) => {
-        let issues = project.Issues.map((issue) => ({
-          id: issue.Id,
-          issueType: issue.IssueType,
-          issueStage: issue.IssueStage,
-          summary: issue.Summary,
-          description: issue.Description,
-          createdBy: issue.CreatedBy,
-          dateCreated: issue.DateCreated,
-        }));
-        let users = project.Users.map((user) => ({
-          id: user.Id,
-          email: user.Email,
-          nickName: user.NickName,
-        }));
-        this.setState({ issues, users, creatorId: project.CreatorId, projectId: project.Id });
+        this.setState({
+          issues: project.issues,
+          users: project.users,
+          creatorId: project.creatorId,
+          projectId: project.id,
+          projectName: project.name,
+        });
       })
       .catch((e) => console.log(e));
   };
@@ -59,7 +56,12 @@ class TrackerPage extends Component {
     url += description ? "&description=" + description : "";
 
     fetch(url)
-      .then((response) => response.text())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Http error " + response.status);
+        }
+        return response.json();
+      })
       .then((data) => {
         this.setState((prevstate) => ({
           issues: [
@@ -87,8 +89,12 @@ class TrackerPage extends Component {
     }).toString();
 
     fetch(url)
-      .then((response) => response.text())
-      .then((data) => {
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Http error " + response.status);
+        }
+      })
+      .then(() => {
         this.setState((prevState) => {
           let tempList = [...prevState.issues];
           let issue = tempList.find((issue) => issue.id === parseInt(id));
@@ -103,8 +109,12 @@ class TrackerPage extends Component {
 
   onMoveIssue = (newStage, issueId) => {
     fetch("Issue/Move?id=" + issueId + "&issueStage=" + newStage)
-      .then((response) => response.text())
-      .then((data) => {
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Http error " + response.status);
+        }
+      })
+      .then(() => {
         this.setState((prevState) => {
           let tempList = [...prevState.issues];
           let issue = tempList.find((issue) => issue.id === parseInt(issueId));
@@ -112,19 +122,16 @@ class TrackerPage extends Component {
           return { issues: tempList };
         });
       });
-
-    this.setState((prevState) => {
-      let tempList = [...prevState.issues];
-      let issue = tempList.find((issue) => issue.id === parseInt(issueId));
-      issue.issueStage = newStage;
-      return { issues: tempList };
-    });
   };
 
   deleteIssue = (issueId) => {
     fetch("Issue/Delete?id=" + issueId)
-      .then((response) => response.json())
-      .then((data) => {
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Http error " + response.status);
+        }
+      })
+      .then(() => {
         //check if the delete was succesful first
         this.setState((prevState) => {
           let tempList = [...prevState.issues];
@@ -156,7 +163,7 @@ class TrackerPage extends Component {
       }
       return { users: tempList };
     });
-  }
+  };
 
   render() {
     let toDoList = [],
@@ -191,6 +198,7 @@ class TrackerPage extends Component {
           <Button onClick={() => this.changePeopleModalState(true)}>
             add people
           </Button>
+          <div className="float-right"> {this.state.projectName}</div>
         </Container>
         <Tracker
           onMoveTask={this.onMoveIssue}
