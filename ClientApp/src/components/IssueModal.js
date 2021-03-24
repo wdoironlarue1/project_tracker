@@ -205,12 +205,9 @@ export default class IssueModal extends Component {
           size="sm"
           show={this.state.showConfirmDeleteModal}
           onHide={() => this.setState({ showConfirmDeleteModal: false })}
-          aria-labelledby="example-modal-sizes-title-sm"
         >
           <Modal.Header>
-            <Modal.Title id="example-modal-sizes-title-sm">
-              Delete this issue?
-            </Modal.Title>
+            <Modal.Title>Delete this issue?</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Row>

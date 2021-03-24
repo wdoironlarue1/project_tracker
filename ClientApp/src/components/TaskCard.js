@@ -26,7 +26,6 @@ export default class TaskCard extends Component {
 
   onDragStart = (ev, id) => {
     //sets the id of the dragged item
-    //in the future the id should be the id of the issue as known in the db (now it's just the summary, which doesn't really work)
     ev.dataTransfer.setData("id", id);
   };
 

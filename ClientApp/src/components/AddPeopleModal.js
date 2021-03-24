@@ -14,11 +14,20 @@ export default class AddPeopleModal extends Component {
     creatorId: PropTypes.number,
     projectId: PropTypes.number,
     removeUser: PropTypes.func,
+    addUsers: PropTypes.func
   };
 
   state = {
     usersToAdd: [],
+    currentUsers: this.props.currentUsers,
   };
+
+  componentDidUpdate = (prevProps) => {
+    if(prevProps.currentUsers !== this.props.currentUsers) {
+      this.setState({currentUsers: this.props.currentUsers})
+    }
+    
+  }
 
   onClickRemoveUser = (userId) => {
     fetch(`User/Remove?projectId=${this.props.projectId}&userId=${userId}`)
@@ -26,9 +35,8 @@ export default class AddPeopleModal extends Component {
         if (!response.ok) {
           throw new Error("Http error " + response.status);
         }
-        return response.json();
       })
-      .then((data) => {
+      .then(() => {
         this.props.removeUser(userId);
       });
   };
@@ -55,30 +63,35 @@ export default class AddPeopleModal extends Component {
   };
 
   onClickAdd = () => {
-    const commaSeparatedIds = this.state.usersToAdd.reduce(
-      (accumulator, currentVal) => ({
-        id: accumulator.id + "," + currentVal.id,
-      })
-    ).id;
-    fetch(
-      "User/Add?projectId=" +
-        this.props.projectId +
-        "&userIdsString=" +
-        commaSeparatedIds
-    )
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Http error " + response.status);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        this.props.closeModal();
-      });
+    if (this.state.usersToAdd.length === 0) {
+      this.props.closeModal();
+    } else {
+      const commaSeparatedIds = this.state.usersToAdd.reduce(
+        (accumulator, currentVal) => ({
+          id: accumulator.id + "," + currentVal.id,
+        })
+      ).id;
+      fetch(
+        "User/Add?projectId=" +
+          this.props.projectId +
+          "&userIdsString=" +
+          commaSeparatedIds
+      )
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Http error " + response.status);
+          }
+        })
+        .then(() => {
+          this.props.addUsers(this.state.usersToAdd);
+          this.setState({ usersToAdd: [] });
+          this.props.closeModal();
+        });
+    }
   };
 
   createUserCards = () => {
-    let currentUsers = this.props.currentUsers.map((user) => {
+    let currentUsers = this.state.currentUsers.map((user) => {
       return (
         <Card key={user.id}>
           <Card.Body>
@@ -123,10 +136,10 @@ export default class AddPeopleModal extends Component {
 
   onCloseModal = () => {
     this.setState({
-      usersToAdd: []
-    })
+      usersToAdd: [],
+    });
     this.props.closeModal();
-  }
+  };
 
   render() {
     return (
@@ -134,7 +147,7 @@ export default class AddPeopleModal extends Component {
         <Container>
           <p>Add People</p>
           <AsyncDropdown
-            currentUsers={this.props.currentUsers.concat(this.state.usersToAdd)}
+            currentUsers={this.state.currentUsers.concat(this.state.usersToAdd)}
             onClickOption={this.onClickDropdownOption}
             returnNumber={10}
           />

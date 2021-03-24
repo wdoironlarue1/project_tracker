@@ -35,7 +35,7 @@ namespace ProjectTracker.Controllers
                 .Include(p => p.Users)
                 .Include(p => p.Issues)
                 .FirstOrDefault(p => p.Id == projectId);
-        
+
             return Ok(project);
         }
 
@@ -51,6 +51,32 @@ namespace ProjectTracker.Controllers
                 _context.SaveChanges();
             }
             return Ok(project);
+        }
+
+        public IActionResult Edit(int projectId, string name, int projectType)
+        {
+            var project = _context.Project.FirstOrDefault(p => p.Id == projectId);
+            if (project != null)
+            {
+                project.Name = name;
+                project.Type = projectType;
+
+                _context.SaveChanges();
+                return Ok();
+            }
+            return Problem();
+        }
+
+        public IActionResult Delete(int projectId)
+        {
+            var project = _context.Project.Find(projectId);
+            if (project != null)
+            {
+                _context.Project.Remove(project);
+                _context.SaveChanges();
+                return Ok();
+            }
+            return Problem();
         }
     }
 }

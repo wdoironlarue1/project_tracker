@@ -16,6 +16,7 @@ class TrackerPage extends Component {
     creatorId: 0,
     projectId: 0,
     projectName: "",
+    isLoading: true,
   };
 
   componentDidMount = () => {
@@ -39,6 +40,7 @@ class TrackerPage extends Component {
           creatorId: project.creatorId,
           projectId: project.id,
           projectName: project.name,
+          isLoading: false,
         });
       })
       .catch((e) => console.log(e));
@@ -165,6 +167,10 @@ class TrackerPage extends Component {
     });
   };
 
+  addUsers = (users) => {
+    this.setState((prevState) => ({ users: [...prevState.users, ...users] }));
+  };
+
   render() {
     let toDoList = [],
       inProgressList = [],
@@ -200,28 +206,34 @@ class TrackerPage extends Component {
           </Button>
           <div className="float-right"> {this.state.projectName}</div>
         </Container>
-        <Tracker
-          onMoveTask={this.onMoveIssue}
-          toDoList={toDoList}
-          inProgressList={inProgressList}
-          doneList={doneList}
-          editItem={this.editItem}
-          deleteIssue={this.deleteIssue}
-        />
-        <IssueModal
-          show={this.state.isIssueModalOpen}
-          closeModal={() => this.changeIssueModalState(false)}
-          createNewItem={this.createNewItem}
-          modalType={constants.MODAL_TYPE_CREATE}
-        />
-        <AddPeopleModal
-          show={this.state.isPeopleModalOpen}
-          currentUsers={this.state.users}
-          removeUser={this.removeUser}
-          closeModal={() => this.changePeopleModalState(false)}
-          creatorId={this.state.creatorId}
-          projectId={this.state.projectId}
-        />
+        {!this.state.isLoading && (
+          <div>
+            <Tracker
+              onMoveTask={this.onMoveIssue}
+              toDoList={toDoList}
+              inProgressList={inProgressList}
+              doneList={doneList}
+              editItem={this.editItem}
+              deleteIssue={this.deleteIssue}
+            />
+            <IssueModal
+              show={this.state.isIssueModalOpen}
+              closeModal={() => this.changeIssueModalState(false)}
+              createNewItem={this.createNewItem}
+              modalType={constants.MODAL_TYPE_CREATE}
+            />
+            <AddPeopleModal
+              // key={this.state.users}
+              show={this.state.isPeopleModalOpen}
+              currentUsers={this.state.users}
+              removeUser={this.removeUser}
+              addUsers={this.addUsers}
+              closeModal={() => this.changePeopleModalState(false)}
+              creatorId={this.state.creatorId}
+              projectId={this.state.projectId}
+            />{" "}
+          </div>
+        )}
       </div>
     );
   }

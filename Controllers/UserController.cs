@@ -50,7 +50,7 @@ namespace ProjectTracker.Controllers
             {
                 users.Add(GetUser(userIds[i]));
             }
-            Project project = GetProject(projectId);
+            Project project = GetProjectWithUsers(projectId);
             if (project != null)
             {
                 project.Users = project.Users.Union(users).ToList();
@@ -60,7 +60,7 @@ namespace ProjectTracker.Controllers
         }
 
         public IActionResult Remove(int projectId, int userId) {
-            Project project = GetProject(projectId);
+            Project project = GetProjectWithUsers(projectId);
             User user = project.Users.SingleOrDefault(user => user.Id == userId);
             if(user != null) {
                 project.Users.Remove(user);

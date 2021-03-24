@@ -10,6 +10,7 @@ class Dashboard extends Component {
   state = {
     projects: [],
     isModalOpen: false,
+    selectedProject: {},
   };
 
   componentDidMount = () => {
@@ -25,7 +26,6 @@ class Dashboard extends Component {
         projects = projects[0].map((project) => {
           return {
             ...project,
-            type: constants.PROJECT_TYPE_MAP[project.type],
             createdBy: project.users.find(
               (user) => user.id === project.creatorId
             ).nickName,
@@ -41,7 +41,9 @@ class Dashboard extends Component {
   };
 
   onNewProjectButtonClick = () => {
-    this.setState({ isModalOpen: true });
+    this.setState({
+      isModalOpen: true,
+    });
   };
 
   createNewProject = (name, type) => {
@@ -73,6 +75,50 @@ class Dashboard extends Component {
       });
   };
 
+  editProject = (projectId, name, type) => {
+    let url = "Project/Edit?";
+    url += new URLSearchParams({
+      projectId,
+      name,
+      type,
+    }).toString();
+    fetch(url)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Http error " + response.status);
+        }
+      })
+      .then(() => {
+        this.setState((prevState) => {
+          let projectList = [...prevState.projects];
+          let project = projectList.find((project) => project.id === parseInt(projectId));
+          project.name = name;
+          project.type = parseInt(type);
+          return {projects: projectList}
+        });
+      });
+  };
+
+  deleteProject = (projectId) => {
+    fetch("Project/Delete?projectId=" + projectId)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Http error " + response.status);
+        }
+      })
+      .then(() => {
+        this.setState((prevState) => {
+          let projectList = [...prevState.projects];
+          for (let i = 0; i < projectList.length; i++) {
+            if (projectList[i].id === projectId) {
+              projectList.splice(i, 1);
+            }
+          }
+          return { projects: projectList };
+        });
+      });
+  };
+
   render() {
     return (
       <Container>
@@ -82,8 +128,13 @@ class Dashboard extends Component {
             new project
           </Button>{" "}
         </div>
-        <ProjectTable projects={this.state.projects} />
+        <ProjectTable
+          projects={this.state.projects}
+          editProject={this.editProject}
+          deleteProject={this.deleteProject}
+        />
         <ProjectModal
+          modalType={constants.MODAL_TYPE_CREATE}
           show={this.state.isModalOpen}
           closeModal={this.closeModal}
           createNewProject={this.createNewProject}

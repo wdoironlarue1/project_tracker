@@ -5,6 +5,7 @@ import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import * as constants from "../constants";
+import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 
 export default class ProjectModal extends Component {
@@ -12,12 +13,23 @@ export default class ProjectModal extends Component {
     show: PropTypes.bool,
     closeModal: PropTypes.func,
     createNewProject: PropTypes.func,
+    editProject: PropTypes.func,
+    deleteProject: PropTypes.func,
+    modalType: PropTypes.string,
+    project: PropTypes.object,
   };
 
   state = {
     validated: false,
-    projectType: constants.PROJECT_TYPE_SCRUM,
-    name: "",
+    projectType:
+      this.props.modalType === constants.MODAL_TYPE_CREATE
+        ? constants.PROJECT_TYPE_SCRUM
+        : this.props.project.type,
+    name:
+      this.props.modalType === constants.MODAL_TYPE_CREATE
+        ? ""
+        : this.props.project.name,
+        showConfirmDeleteModal: false
   };
 
   onChangeFormItem = ({ target: { value } }, stateKey) => {
@@ -29,8 +41,11 @@ export default class ProjectModal extends Component {
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
       this.setState({ validated: true });
-    } else {
+    } else if(this.props.modalType === constants.MODAL_TYPE_CREATE) {
       this.props.createNewProject(this.state.name, this.state.projectType);
+      this.onCloseModal();
+    } else {
+      this.props.editProject(this.props.project.id, this.state.name, this.state.projectType);
       this.onCloseModal();
     }
   };
@@ -45,6 +60,16 @@ export default class ProjectModal extends Component {
     this.props.closeModal();
   };
 
+  onClickDelete = () => {
+    this.setState({ showConfirmDeleteModal: true });
+  };
+
+  onConfirmDelete = () => {
+    this.props.deleteProject(this.props.project.id);
+    this.setState({ showConfirmDeleteModal: false });
+    this.onCloseModal();
+  };
+
   render() {
     return (
       <Modal show={this.props.show} onHide={this.onCloseModal}>
@@ -54,7 +79,11 @@ export default class ProjectModal extends Component {
             validated={this.state.validated}
             onSubmit={this.onSubmit}
           >
-            <p>Create Project</p>
+            <p>
+              {this.props.modalType === constants.MODAL_TYPE_CREATE
+                ? "Create Project"
+                : "Edit Project"}
+            </p>
             <Form.Group controlId="name">
               <Form.Label>Name</Form.Label>
               <Form.Control
@@ -85,20 +114,49 @@ export default class ProjectModal extends Component {
                 </option>
               </Form.Control>
             </Form.Group>
-
-            <Form.Row>
+            <Button variant="primary" type="submit">
+              {this.props.modalType === constants.MODAL_TYPE_CREATE
+                ? "Create"
+                : "Save Changes"}
+            </Button>
+            <Button variant="link" onClick={this.onCloseModal}>
+              {" "}
+              Cancel
+            </Button>
+            {this.props.modalType === constants.MODAL_TYPE_EDIT && (
+              <Button variant="danger" className="float-right" onClick={this.onClickDelete}>
+                Delete
+              </Button>
+            )}
+          </Form>
+        </Container>
+        <Modal
+          size="sm"
+          show={this.state.showConfirmDeleteModal}
+          onHide={() => this.setState({ showConfirmDeleteModal: false })}
+        >
+          <Modal.Header>
+            <Modal.Title>Delete this project and all the issues related to it?</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Row>
               <Col>
-                <Button variant="primary" type="submit">
-                  Create
+                <Button variant="danger" onClick={this.onConfirmDelete}>
+                  Delete
                 </Button>
-                <Button variant="link" onClick={this.onCloseModal}>
-                  {" "}
+              </Col>
+              <Col>
+                <Button
+                  onClick={() =>
+                    this.setState({ showConfirmDeleteModal: false })
+                  }
+                >
                   Cancel
                 </Button>
               </Col>
-            </Form.Row>
-          </Form>
-        </Container>
+            </Row>
+          </Modal.Body>
+        </Modal>
       </Modal>
     );
   }

@@ -44,40 +44,46 @@ namespace ProjectTracker.Controllers
         }
 
 
-        public IActionResult Delete(int Id)
+        public IActionResult Delete(int id)
         {
-            var issue = _context.Issue.Find(Id);
-            _context.Issue.Remove(issue);
-            _context.SaveChanges();
-            return Ok();
+            var issue = _context.Issue.Find(id);
+            if (issue != null)
+            {
+                _context.Issue.Remove(issue);
+                _context.SaveChanges();
+                return Ok();
+            }
+            return Problem();
         }
 
         public IActionResult Edit(int id, string summary, string description, int issueStage, int issueType)
         {
-            var entity = _context.Issue.FirstOrDefault(issue => issue.Id == id);
-            if (entity != null)
+            var issue = _context.Issue.Find(id);
+            if (issue != null)
             {
-                entity.Summary = summary;
-                entity.Description = description;
-                entity.IssueStage = issueStage;
-                entity.IssueType = issueType;
+                issue.Summary = summary;
+                issue.Description = description;
+                issue.IssueStage = issueStage;
+                issue.IssueType = issueType;
 
                 _context.SaveChanges();
+                return Ok();
             }
+            return Problem();
 
-            return Ok();
         }
 
         public IActionResult Move(int id, int issueStage)
         {
-            var entity = _context.Issue.FirstOrDefault(issue => issue.Id == id);
+            var entity = _context.Issue.Find(id);
             if (entity != null)
             {
                 entity.IssueStage = issueStage;
 
                 _context.SaveChanges();
+                return Ok();
             }
-            return Ok();
+            return Problem();
         }
 
         private bool IssueExists(int id)

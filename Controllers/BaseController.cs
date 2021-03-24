@@ -30,7 +30,7 @@ namespace ProjectTracker.Controllers
             return _context.User.FirstOrDefault(u => u.Id == userId);
         }
 
-        protected Project GetProject(int projectId)
+        protected Project GetProjectWithUsers(int projectId)
         {
             return _context.Project.Include(p => p.Users).FirstOrDefault(p => p.Id == projectId);
         }

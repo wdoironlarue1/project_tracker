@@ -21,13 +21,13 @@ export default class AsyncDropdown extends Component {
         "&returnNumber=" +
         this.props.returnNumber
     )
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Http error " + response.status);
+        }
+        return response.json();
+      })
       .then((data) => {
-        data = data.map((user) => ({
-          email: user.Email,
-          id: user.Id,
-          nickName: user.NickName,
-        }));
         this.setState({ options: data });
       });
   };
