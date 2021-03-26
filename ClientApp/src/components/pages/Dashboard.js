@@ -5,6 +5,7 @@ import ProjectTable from "../ProjectTable";
 import ProjectModal from "../ProjectModal";
 import { withAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 import * as constants from "../../constants";
+import Jumbotron from "react-bootstrap/Jumbotron";
 
 class Dashboard extends Component {
   state = {
@@ -67,7 +68,7 @@ class Dashboard extends Component {
             ...prevState.projects,
             {
               ...project,
-              type: constants.PROJECT_TYPE_MAP[type],
+              type: type,
               createdBy: user.nickname,
             },
           ],
@@ -91,10 +92,12 @@ class Dashboard extends Component {
       .then(() => {
         this.setState((prevState) => {
           let projectList = [...prevState.projects];
-          let project = projectList.find((project) => project.id === parseInt(projectId));
+          let project = projectList.find(
+            (project) => project.id === parseInt(projectId)
+          );
           project.name = name;
           project.type = parseInt(type);
-          return {projects: projectList}
+          return { projects: projectList };
         });
       });
   };
@@ -122,23 +125,25 @@ class Dashboard extends Component {
   render() {
     return (
       <Container>
-        <h2>Projects</h2>
-        <div>
-          <Button variant="primary" onClick={this.onNewProjectButtonClick}>
-            new project
-          </Button>{" "}
-        </div>
-        <ProjectTable
-          projects={this.state.projects}
-          editProject={this.editProject}
-          deleteProject={this.deleteProject}
-        />
-        <ProjectModal
-          modalType={constants.MODAL_TYPE_CREATE}
-          show={this.state.isModalOpen}
-          closeModal={this.closeModal}
-          createNewProject={this.createNewProject}
-        />
+        <Jumbotron>
+          <h2>Projects</h2>
+          <div>
+            <Button variant="primary" onClick={this.onNewProjectButtonClick}>
+              new project
+            </Button>{" "}
+          </div>
+          <ProjectTable
+            projects={this.state.projects}
+            editProject={this.editProject}
+            deleteProject={this.deleteProject}
+          />
+          <ProjectModal
+            modalType={constants.MODAL_TYPE_CREATE}
+            show={this.state.isModalOpen}
+            closeModal={this.closeModal}
+            createNewProject={this.createNewProject}
+          />
+        </Jumbotron>
       </Container>
     );
   }
